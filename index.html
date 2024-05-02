@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="index.css">
+    <title>Trivia</title>
+</head>
+<body>
+    <div class="container">
+        <img src="" alt="">
+        <header>
+            <div class="puntaje">
+                <i class="fa-solid fa-headphones"></i>
+                <span class="puntos" id="cronometro">0</span>
+            </div>
+            <div class="jugador ">
+                <span class="nombre"> - </span>
+                <i class="fa-solid fa-gift"></i>
+            </div>
+        </header>
+        <main class="inicio">
+            <h1>Bienvenido</h1>
+            <p>ingrese tu nombre</p>
+            
+                <input type="text" id="nombre-user" placeholder="Ingrese tu nombre" >
+                <button class="btn" onclick="inicio()" id="comenzar">
+                    Empezar
+                </button>
+            
+        </main>
+    </div>
+    <script src="index.js"></script>
+</body>
+</html>
