@@ -1,14 +1,18 @@
-    document.addEventListener('DOMContentLoaded',()=>{
-    const urlParams         = new URLSearchParams(window.location.search);
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
     const cantidadPreguntas = urlParams.get('amount');
-    const categoria         = urlParams.get('category');
-    const dificultad        = urlParams.get('difficulty');
-    const tipoRespuesta     = urlParams.get('type');
+    const categoria = urlParams.get('category');
+    const dificultad = urlParams.get('difficulty');
+    const tipoRespuesta = urlParams.get('type');
+    const nombre = urlParams.get('nombre');
     
     const urlAPI = `https://opentdb.com/api.php?amount=${cantidadPreguntas}&category=${categoria}&difficulty=${dificultad}&type=${tipoRespuesta}`;
-    let inicieActual        =0;
+    let inicieActual = 0;
     let datos;
-    let answerMultiple=[];
+    let answerMultiple = [];
+    const nombreJugador = document.querySelector('.nombre');
+    nombreJugador.textContent = nombre;
+
     iniciarCronometro();
     fetch(urlAPI)
         .then(response => {
@@ -19,163 +23,120 @@
         })
         .then(data => {
             datos = data;
-            // Procesar los datos y mostrar las preguntas en la página
-            console.log(data.results[inicieActual]);
             mostrarPreguntas(data.results[inicieActual]);
         })
         .catch(error => {
             console.error('Error:', error);
         });
-        //mostrar preguntas
-        function mostrarPreguntas(data){
-            alert(cantidadPreguntas)
-            if (inicieActual>(datos.length)-1){
-                window.location.href=`opciones.html`;
-            }else{
-                const titleDiv      =   document.querySelector('.pregunta');
-                const respuestaDiv  =   document.querySelector('.respuestas');
-                const h2            =   document.createElement('h2');
-                //falso y verdadero
-                const btnOpccio1    =   document.createElement('button');
-                btnOpccio1.classList.add("btn-opcion1");
-                btnOpccio1.value="True";
-                btnOpccio1.textContent="Verdadero";
-                
-                const btnOpccio2    =   document.createElement('button');
-                btnOpccio2.classList.add("btn-opcion2");
-                btnOpccio2.value="False";
-                btnOpccio2.textContent="Falso";
-                
 
-                titleDiv.innerHTML="";
-                respuestaDiv.innerHTML="";
-                answerMultiple=[];
-                h2.classList.add('title-pregunta');
-                h2.textContent      =data.question;
-                titleDiv.appendChild(h2); 
-                
-                if (data.type==="boolean") {
-                    respuestaDiv.appendChild(btnOpccio1);
-                    respuestaDiv.appendChild(btnOpccio2);
-                    const btnVerdad =document.querySelector('.btn-opcion1');
-                    btnVerdad.addEventListener('click',()=>{
-                        if (data.correct_answer===btnVerdad.value) {
-                            verificarAvanzar(data);
-                        }else{
-                            verificarAvanzar(data);
-                        }
-                    
-                    });
-                }
-                if (data.type==="multiple" ) {
-                    for (let i = 0; i < data.incorrect_answers.length; i++) {
-                        answerMultiple.push(data.incorrect_answers[i]);
-                    }
-                    answerMultiple.push(data.correct_answer);
-                    answerMultiple.sort(()=>Math.random()-0.5);
-                    //generando botones opciones multiples
-                    
-                    for (let i = 0; i < answerMultiple.length; i++) {
-
-                        const opcionMultiple    =document.createElement('button');
-                        
-                        opcionMultiple.classList.add('btn-multiple');
-                        opcionMultiple.textContent=answerMultiple[i];
-                        opcionMultiple.value=answerMultiple[i];
-                        respuestaDiv.appendChild(opcionMultiple);
-
-                    }
-                    const btnseleccionMultiple = document.querySelectorAll('.btn-multiple');
-                    
-                    btnseleccionMultiple.forEach(boton =>{
-                    
-                        boton.addEventListener('click', () => {
-                    
-                            if (data.correct_answer!==boton.value) {
-                                verificarMultipleMal(data);
-                            
-                            }
-                            else{
-                            verificaMultiple(data);
-                            
-                            }
-                        });
-                    });
-                }  
-            }       
-        }
-
-        function iniciarCronometro(){
+    function mostrarPreguntas(data) {
+        if (inicieActual >= cantidadPreguntas) {
+            avanzarSiguienteJugador();
+        } else {
+            const titleDiv = document.querySelector('.pregunta');
+            const respuestaDiv = document.querySelector('.respuestas');
+            const h2 = document.createElement('h2');
             
-            let cronometro=0;
-            const intervalo=setInterval(()=>{
-                document.getElementById('cronometro').textContent=`${cronometro } - segundos`;
-                cronometro++;
-            },1000);
-
-        }
-
-        function verificarAvanzar(data){
-            if(data.correct_answer==="True"){
-                Swal.fire({
-                    position: "top-center",
-                    icon: "success",
-                    title: "Correcto",
-                    showConfirmButton: false,
-                    timer: 1500
-                  });
-                inicieActual++;
-                mostrarPreguntas(datos.results[inicieActual]);
-            }else{
-                Swal.fire({
-                    position: "top-center",
-                    icon: "error",
-                    title: "Incorrecto Trivilin",
-                    imageUrl: "images.jpeg",
-                    imageWidth: 400,
-                    imageHeight: 200,
-                    imageAlt: "Custom image",
-                    showConfirmButton: false,
-                    timer: 3000
-                  });
-                inicieActual++;
-                mostrarPreguntas(datos.results[inicieActual]);
+            titleDiv.innerHTML = "";
+            respuestaDiv.innerHTML = "";
+            answerMultiple = [];
+            h2.classList.add('title-pregunta');
+            h2.textContent = data.question;
+            titleDiv.appendChild(h2); 
+            
+            if (data.type === "boolean") {
+                crearBotonesBoolean(data);
+            } else if (data.type === "multiple") {
+                crearBotonesMultiple(data);
             }
         }
-        function verificarMultipleMal(data){
-            Swal.fire({
-                position: "top-center",
-                icon: "error",
-                title: "Incorrecto Trivilin",
-                imageUrl: "images.jpeg",
-                imageWidth: 400,
-                imageHeight: 200,
-                imageAlt: "Custom image",
-                showConfirmButton: false,
-                timer: 3000
-              });
-            inicieActual++;
-            mostrarPreguntas(datos.results[inicieActual]);
-        }
-        function verificaMultiple(data){
-            
+    }
+
+    function crearBotonesBoolean(data) {
+        const respuestaDiv = document.querySelector('.respuestas');
+        const btnOpcion1 = document.createElement('button');
+        const btnOpcion2 = document.createElement('button');
+        
+        btnOpcion1.classList.add("btn-opcion1");
+        btnOpcion1.value = "True";
+        btnOpcion1.textContent = "Verdadero";
+        
+        btnOpcion2.classList.add("btn-opcion2");
+        btnOpcion2.value = "False";
+        btnOpcion2.textContent = "Falso";
+
+        respuestaDiv.appendChild(btnOpcion1);
+        respuestaDiv.appendChild(btnOpcion2);
+
+        btnOpcion1.addEventListener('click', () => verificarRespuesta(data, btnOpcion1.value));
+        btnOpcion2.addEventListener('click', () => verificarRespuesta(data, btnOpcion2.value));
+    }
+
+    function crearBotonesMultiple(data) {
+        const respuestaDiv = document.querySelector('.respuestas');
+        
+        answerMultiple = [...data.incorrect_answers, data.correct_answer];
+        answerMultiple.sort(() => Math.random() - 0.5);
+        
+        answerMultiple.forEach(answer => {
+            const btnMultiple = document.createElement('button');
+            btnMultiple.classList.add('btn-multiple');
+            btnMultiple.textContent = answer;
+            btnMultiple.value = answer;
+            respuestaDiv.appendChild(btnMultiple);
+            btnMultiple.addEventListener('click', () => verificarRespuesta(data, btnMultiple.value));
+        });
+    }
+
+    function verificarRespuesta(data, respuesta) {
+        if (data.correct_answer === respuesta) {
             Swal.fire({
                 position: "top-center",
                 icon: "success",
                 title: "Correcto",
                 showConfirmButton: false,
                 timer: 1500
-              });
-            inicieActual++;
-            mostrarPreguntas(datos.results[inicieActual]);
+            });
+        } else {
+            Swal.fire({
+                position: "top-center",
+                icon: "error",
+                title: "Incorrecto",
+                showConfirmButton: false,
+                timer: 1500
+            });
         }
+        inicieActual++;
+        mostrarPreguntas(datos.results[inicieActual]);
+    }
 
-        // Botón "Siguiente" para avanzar a la siguiente pregunta
-        const btnSiguiente = document.querySelector('#siguiente');
-        btnSiguiente.addEventListener('click', () => {
-            console.log(datos);
-            inicieActual++; // Avanzar al siguiente índice
-            mostrarPreguntas(datos.results[inicieActual]);
-        });       
+    function avanzarSiguienteJugador() {
+        let jugadorActualIndex = parseInt(localStorage.getItem('jugadorActualIndex')) || 0;
+        jugadorActualIndex++;
+        const usuariosJugando = JSON.parse(localStorage.getItem('nombreJugadores'));
+
+        if (jugadorActualIndex < usuariosJugando.length) {
+            localStorage.setItem('jugadorActualIndex', jugadorActualIndex);
+            window.location.href = 'opciones.html';
+        } else {
+            Swal.fire({
+                position: "top-center",
+                icon: "success",
+                title: "Todos los jugadores han terminado",
+                showConfirmButton: true,
+            }).then(() => {
+                // Puedes redirigir a una página de resultados o reiniciar el juego
+                localStorage.removeItem('jugadorActualIndex');
+                window.location.href = 'index.html';
+            });
+        }
+    }
+
+    function iniciarCronometro() {
+        let cronometro = 0;
+        const intervalo = setInterval(() => {
+            document.getElementById('cronometro').textContent = `${cronometro} segundos`;
+            cronometro++;
+        }, 1000);
+    }
 });
-

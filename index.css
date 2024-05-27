@@ -68,6 +68,11 @@ header{
     background-color: #2a2929;
   
 }
+.contenedor-jugadores{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
 .menu{
     display: flex;
     justify-content: space-between;
